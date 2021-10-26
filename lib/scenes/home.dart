@@ -1,13 +1,29 @@
 import 'package:ateneo/constants/theme_data.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
+  Home({this.app});
+  final FirebaseApp? app;
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  final referenceDatabase = FirebaseDatabase.instance;
+  final publishController = TextEditingController();
+
+  @override
+  void initState(){
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
+    DatabaseReference _publicaciones = database.reference().child('publicaciones');
+    final ref = referenceDatabase.reference();
     return Scaffold(
       backgroundColor: CustomColors.pageBackgroundColor,
       appBar: AppBar(
@@ -44,22 +60,45 @@ class _HomeState extends State<Home> {
             child: Column(
               children: [
                 SizedBox(height: 7,),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: CustomColors.minHandStatColor,
-                  ),
-                  child: Form(
-                      child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: TextFormField(),
-                  )),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: CustomColors.minHandStatColor,
+                        ),
+                        child: Form(
+                            child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: TextFormField(
+                            controller: publishController,
+                          ),
+                        )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RaisedButton(onPressed: (){
+                        ref
+                            .child('publicaciones')
+                            .push()
+                            .child('pub')
+                            .set(publishController.text)
+                            .asStream();
+                        publishController.clear();
+                      },
+                        child: Text('Publicar'),),
+                    )
+                  ],
                 ),
                 Expanded(
-                  child: ListView.builder(
-                      itemCount: 4,
-                      itemBuilder: (context, index) {
+                  child: new FirebaseAnimatedList(query: _publicaciones,
+                      itemBuilder: (BuildContext context,
+                      DataSnapshot snapshot,
+                      Animation<double> animation,
+                          int index){
                         return InkWell(
                           onTap: () {},
                           child: Container(
@@ -69,7 +108,7 @@ class _HomeState extends State<Home> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: GradientTemplate
-                                    .gradientTemplate[index].colors,
+                                    .gradientTemplate[1].colors,
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -113,23 +152,22 @@ class _HomeState extends State<Home> {
                                         ),
                                         SizedBox(width: 8),
                                         Text(
-                                          '#nombre$index',
+                                          '#user',
                                           style: TextStyle(
                                             color: Colors.white,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    Switch(
-                                      onChanged: (bool value) {},
-                                      value: true,
-                                      activeColor: Colors.white,
-                                    ),
+                                    IconButton(onPressed: (){
+                                      _publicaciones.child(snapshot.key.toString())
+                                          .remove();
+                                    },
+                                        icon: Icon(Icons.delete))
                                   ],
                                 ),
                                 Text(
-                                  'textoooooooooooooooooooooooooooooo$index,',
-
+                                  snapshot.value['pub'],
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -143,7 +181,7 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

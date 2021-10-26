@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "426559626478",
+    "project_id": "ateneo-ce866",
+    "storage_bucket": "ateneo-ce866.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:426559626478:android:f5e0081a180c346d8967ff",
+        "android_client_info": {
+          "package_name": "com.CorberaApps.ateneo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "426559626478-n944pnuvh6bjhll5kppdv174p63nsbn9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.CorberaApps.ateneo",
+            "certificate_hash": "d8ea15313b9fa16b353a91046199dbe1d5fba563"
+          }
+        },
+        {
+          "client_id": "426559626478-s7vqb9r2ajoa8miuvdlvbcfkefn2lg43.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvHFOfh-SE2SBLVW5jDYd0hnXul6sO36c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "426559626478-s7vqb9r2ajoa8miuvdlvbcfkefn2lg43.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
