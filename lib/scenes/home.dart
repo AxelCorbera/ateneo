@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:ateneo/constants/theme_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart'  as http;
 
 class Home extends StatefulWidget {
   Home({this.app});
@@ -26,23 +31,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('A bg message just showed up :  ${message.messageId}');
 }
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-}
-
 class _HomeState extends State<Home> {
+
   int _counter = 0;
   final referenceDatabase = FirebaseDatabase.instance;
   final publishController = TextEditingController();
@@ -50,47 +40,72 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+
+    FirebaseMessaging.instance.getToken().then((token) {
+      _token = token!;
+      print("Device Token: $token");
+    });
+
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      print('inicial ?!');
+    });
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                color: Colors.blue,
-                playSound: true,
-                icon: '@mipmap/ic_launcher',
-              ),
-            ));
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription:
+              channel.description,
+              // TODO add a proper drawable resource to android, for now using
+              //      one that already exists in example app.
+              icon: '@mipmap/ic_notification',
+            ),
+          ),
+        );
       }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text(notification.title.toString()),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text(notification.body.toString())],
-                  ),
-                ),
-              );
-            });
-      }
+      final notification = message.notification;
+      final data = message.data;
+      String? body = notification!.body;
+      String? title = notification.title;
+
+      print('A new onMessageOpenedApp! $title $body $data');
     });
-  }
+
+  //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //     print('A new onMessageOpenedApp event was published!');
+  //     RemoteNotification? notification = message.notification;
+  //     AndroidNotification? android = message.notification?.android;
+  //     if (notification != null && android != null) {
+  //       print('resume APP!');
+  //       showDialog(
+  //           context: context,
+  //           builder: (_) {
+  //             return AlertDialog(
+  //               title: Text(notification.title.toString()),
+  //               content: SingleChildScrollView(
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [Text(notification.body.toString())],
+  //                 ),
+  //               ),
+  //             );
+  //           });
+  //     }
+  //   });
+   }
 
   void showNotification() {
     setState(() {
@@ -108,10 +123,23 @@ class _HomeState extends State<Home> {
                 icon: '@mipmap/ic_launcher')));
   }
 
+  String constructFCMPayload(String? token) {
+    return jsonEncode({
+      'token': token,
+      'data': {
+        'via': 'FlutterFire Cloud Messaging!!!',
+        'count': 'TESTT',
+      },
+      'notification': {
+        'title': 'Hello FlutterFire!',
+        'body': 'This notification (#1) was created via FCM!',
+      },
+    });
+  }
+  String _token = '';
 
   @override
   Widget build(BuildContext context) {
-    main();
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
     DatabaseReference _publicaciones = database.reference().child('publicaciones');
     final ref = referenceDatabase.reference();
@@ -128,7 +156,7 @@ class _HomeState extends State<Home> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                     minWidth: 64,
                     minHeight: 64,
                     maxWidth: 64,
@@ -172,20 +200,21 @@ class _HomeState extends State<Home> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: RaisedButton(onPressed: (){
-                        ref
-                            .child('publicaciones')
-                            .push()
-                            .child('pub')
-                            .set(publishController.text)
-                            .asStream();
-                        publishController.clear();
+                        // ref
+                        //     .child('publicaciones')
+                        //     .push()
+                        //     .child('pub')
+                        //     .set(publishController.text)
+                        //     .asStream();
+                        // publishController.clear();
+                        sendPushMessage();
                       },
                         child: Text('Publicar'),),
                     )
                   ],
                 ),
                 Expanded(
-                  child: new FirebaseAnimatedList(query: _publicaciones,
+                  child: FirebaseAnimatedList(query: _publicaciones,
                       itemBuilder: (BuildContext context,
                       DataSnapshot snapshot,
                       Animation<double> animation,
@@ -224,7 +253,7 @@ class _HomeState extends State<Home> {
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            constraints: BoxConstraints(
+                                            constraints: const BoxConstraints(
                                               minWidth: 32,
                                               minHeight: 32,
                                               maxWidth: 32,
@@ -241,8 +270,8 @@ class _HomeState extends State<Home> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 8),
-                                        Text(
+                                        const SizedBox(width: 8),
+                                        const Text(
                                           '#user',
                                           style: TextStyle(
                                             color: Colors.white,
@@ -254,12 +283,12 @@ class _HomeState extends State<Home> {
                                       _publicaciones.child(snapshot.key.toString())
                                           .remove();
                                     },
-                                        icon: Icon(Icons.delete))
+                                        icon: const Icon(Icons.delete))
                                   ],
                                 ),
                                 Text(
                                   snapshot.value['pub'],
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700),
@@ -277,4 +306,31 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  Future<void> sendPushMessage() async {
+    if (_token == null) {
+      print('Unable to send FCM message, no token exists.');
+      return;
+    }
+
+    try {
+
+      FirebaseFirestore.instance.collection('Messages').add({
+        'message': publishController.text,
+      })
+          .then((value) => print("mensaje enviado"))
+          .catchError((error) => print("Failed to add user: $error"));
+      // await http.post(
+      //   Uri.parse('https://api.rnfirebase.io/messaging/send'),
+      //   headers: <String, String>{
+      //     'Content-Type': 'application/json; charset=UTF-8',
+      //   },
+      //   body: constructFCMPayload(_token),
+      // );
+      // print('FCM request for device sent!');
+    } catch (e) {
+      print(e);
+    }
+  }
+
 }
