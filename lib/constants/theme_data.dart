@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
 
-class CustomColors {
+class Colores {
   static Color primaryTextColor = Colors.white;
   static Color dividerColor = Colors.white54;
   static Color pageBackgroundColor = Color(0xFF2D2F41);
   static Color menuBackgroundColor = Color(0xFF242634);
 
-  static Color clockBG = Color(0xFF444974);
-  static Color clockOutline = Color(0xFFEAECFF);
-  static Color secHandColor = Colors.orange;
-  static Color minHandStatColor = Color(0xFF748EF6);
-  static Color minHandEndColor = Color(0xFF77DDFF);
-  static Color hourHandStatColor = Color(0xFFC279FB);
-  static Color hourHandEndColor = Color(0xFFEA74AB);
+  static Color cian = Color(0xFF3BD6B8);
+  static Color azul = Color(0xFF355CD9);
+  static Color rosa = Color(0xFFFD8376);
+  static Color violeta = Color(0xFF9800FA);
+  static Color negro = Color(0xFF252429);
 }
 
-class GradientColors {
+class Gradientes {
   final List<Color> colors;
-  GradientColors(this.colors);
+  Gradientes(this.colors);
 
-  static List<Color> sky = [Color(0xFF6448FE), Color(0xFF5FC6FF)];
-  static List<Color> sunset = [Color(0xFFFE6197), Color(0xFFFFB463)];
-  static List<Color> sea = [Color(0xFF61A3FE), Color(0xFF63FFD5)];
+  static List<Color> fondo = [Color(0xFF252429), Color(0xFF18181C)];
+  static List<Color> uno = [Color(0xFF3BD6B8), Color(0xFF355CD9)];
+  static List<Color> dos = [Color(0xFFFD8376), Color(0xFF9800FA)];
   static List<Color> mango = [Color(0xFFFFA738), Color(0xFFFFE130)];
   static List<Color> fire = [Color(0xFFFF5DCD), Color(0xFFFF8484)];
 }
 
 class GradientTemplate {
-  static List<GradientColors> gradientTemplate = [
-    GradientColors(GradientColors.sky),
-    GradientColors(GradientColors.sunset),
-    GradientColors(GradientColors.sea),
-    GradientColors(GradientColors.mango),
-    GradientColors(GradientColors.fire),
+  static List<Gradientes> gradientTemplate = [
+    Gradientes(Gradientes.fondo),
+    Gradientes(Gradientes.uno),
+    Gradientes(Gradientes.dos),
+    Gradientes(Gradientes.mango),
+    Gradientes(Gradientes.fire),
   ];
 }

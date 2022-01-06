@@ -1,13 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ateneo/scenes/home.dart';
+import 'package:ateneo/pages/home.dart';
+import 'package:ateneo/pages/initial_configuration.dart';
+import 'package:ateneo/pages/initial_configuration_perfil.dart';
+import 'package:ateneo/pages/register.dart';
+import 'package:ateneo/provider/google_sing_in.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
+
+import 'constants/theme_data.dart';
+import 'pages/login.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -72,22 +80,48 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+  create: (context) => GoogleSignInProvider(),
+  child: MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        primaryColor: Colors.white,
+        inputDecorationTheme: InputDecorationTheme(
+          fillColor: Colors.white,
+          hoverColor: Colors.white,
+          focusColor: Colors.white,
+          labelStyle: TextStyle(
+            color: Colors.white,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            borderSide: BorderSide(color: Colores.cian, width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            borderSide: BorderSide(color: Colors.white, width: 1),
+          ),
+        ),
       ),
       onGenerateRoute: (RouteSettings settings) {
         return MaterialPageRoute(builder: (BuildContext context) {
           switch (settings.name) {
             case "/Home":
               return Home();
+            case "/Login":
+              return Login();
+            case "/Register":
+              return Register();
+            case "/Initial_Configuration":
+              return Initial_Configuration();
+            case "/Initial_Configuration_Perfil":
+              return Initial_Configuration_Perfil();
             default:
               return Home();
           }
         });
       },
-    );
-  }
+    )
+  );
 }

@@ -1,20 +1,22 @@
 import 'dart:convert';
-
+import 'package:ateneo/globals.dart' as globals;
 import 'package:ateneo/constants/theme_data.dart';
+import 'package:ateneo/provider/google_sing_in.dart';
+import 'package:ateneo/scripts/objects/user.dart' as us;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart'  as http;
+import 'package:provider/provider.dart';
 
-class Home extends StatefulWidget {
-  Home({this.app});
+class Inicio extends StatefulWidget{
+  Inicio({this.app});
   final FirebaseApp? app;
-  _HomeState createState() => _HomeState();
+  _inicioState createState() => _inicioState();
 }
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -31,7 +33,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('A bg message just showed up :  ${message.messageId}');
 }
 
-class _HomeState extends State<Home> {
+
+class _inicioState extends State<Inicio>{
+
 
   int _counter = 0;
   final referenceDatabase = FirebaseDatabase.instance;
@@ -84,28 +88,28 @@ class _HomeState extends State<Home> {
       print('A new onMessageOpenedApp! $title $body $data');
     });
 
-  //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-  //     print('A new onMessageOpenedApp event was published!');
-  //     RemoteNotification? notification = message.notification;
-  //     AndroidNotification? android = message.notification?.android;
-  //     if (notification != null && android != null) {
-  //       print('resume APP!');
-  //       showDialog(
-  //           context: context,
-  //           builder: (_) {
-  //             return AlertDialog(
-  //               title: Text(notification.title.toString()),
-  //               content: SingleChildScrollView(
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [Text(notification.body.toString())],
-  //                 ),
-  //               ),
-  //             );
-  //           });
-  //     }
-  //   });
-   }
+    //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    //     print('A new onMessageOpenedApp event was published!');
+    //     RemoteNotification? notification = message.notification;
+    //     AndroidNotification? android = message.notification?.android;
+    //     if (notification != null && android != null) {
+    //       print('resume APP!');
+    //       showDialog(
+    //           context: context,
+    //           builder: (_) {
+    //             return AlertDialog(
+    //               title: Text(notification.title.toString()),
+    //               content: SingleChildScrollView(
+    //                 child: Column(
+    //                   crossAxisAlignment: CrossAxisAlignment.start,
+    //                   children: [Text(notification.body.toString())],
+    //                 ),
+    //               ),
+    //             );
+    //           });
+    //     }
+    //   });
+  }
 
   void showNotification() {
     setState(() {
@@ -138,17 +142,30 @@ class _HomeState extends State<Home> {
   }
   String _token = '';
 
-  @override
   Widget build(BuildContext context) {
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
-    DatabaseReference _publicaciones = database.reference().child('publicaciones');
+    DatabaseReference _publicaciones = database.reference().child('publications');
     final ref = referenceDatabase.reference();
     return Scaffold(
-      backgroundColor: CustomColors.pageBackgroundColor,
+      backgroundColor: Colores.pageBackgroundColor,
       appBar: AppBar(
-        backgroundColor: CustomColors.menuBackgroundColor,
+        backgroundColor: Colores.menuBackgroundColor,
+        actions: [IconButton(
+          onPressed: (){
+      logout();
+      final provider = Provider.of<GoogleSignInProvider>(context,
+          listen: false);
+      provider.logout();
+
+    Navigator.of(context).pushNamed('/Login');
+          },
+          icon: Icon(Icons.exit_to_app),
+        ),
+        ],
       ),
-      drawer: Drawer(),
+      drawer: Drawer(
+
+      ),
       body: Row(
         children: <Widget>[
           Column(
@@ -165,11 +182,10 @@ class _HomeState extends State<Home> {
                   decoration: BoxDecoration(
                     color: Colors.grey[400],
                     shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.person,
-                    size: 30,
-                    color: Theme.of(context).secondaryHeaderColor,
+                    image: DecorationImage(
+                      image: NetworkImage(globals.user.photoUrl.toString()),
+                      fit: BoxFit.cover
+                    ),
                   ),
                 ),
               ),
@@ -186,13 +202,51 @@ class _HomeState extends State<Home> {
                         margin: const EdgeInsets.only(bottom: 10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: CustomColors.minHandStatColor,
+                          color: Colors.white54,
                         ),
                         child: Form(
                             child: Padding(
                           padding: const EdgeInsets.all(10),
-                          child: TextFormField(
-                            controller: publishController,
+                          child: Container(
+                            height: 40,
+                            child: TextFormField(
+                              controller: publishController,
+                              decoration: const InputDecoration(
+                                hintStyle: TextStyle(
+                                ),
+                                hintText: 'Escribe aqui...',
+                                  focusedBorder:OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                        width: 0
+                                    ),
+                                  ),
+                                  focusedErrorBorder:OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 0
+                                    ),
+                                  ),
+                                  disabledBorder:OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 0
+                                    ),
+                                  ),
+                                  enabledBorder:OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 0
+                                    ),
+                                  ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                    width: 0
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         )),
                       ),
@@ -287,7 +341,7 @@ class _HomeState extends State<Home> {
                                   ],
                                 ),
                                 Text(
-                                  snapshot.value['pub'],
+                                  snapshot.value['message'],
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -333,4 +387,34 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Future<Null> logout() async {
+    FirebaseAuth.instance.signOut();
+    globals.login = false;
+    globals.user = us.User('', '', '', '', '', '', '', '','',[],[]);
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.setString('username', '');
+    // prefs.setString('password', '');
+    // prefs.setString('gId', '');
+    // prefs.setString('gCorreo', '');
+    // prefs.setString('gNombre', '');
+    // prefs.setString('gDocumento', '');
+    // prefs.setString('gTelefono', '');
+    // prefs.setString('gPersona', '');
+    // prefs.setString('gCuil', '');
+    // prefs.setString('gRazonSocial', '');
+    // prefs.setString('gToken', '');
+    // prefs.setString('gIdCustomerMp', '');
+    // prefs.setString('gIdCardMp', '');
+    // prefs.setString('gProvincia', '');
+    // prefs.setString('gMunicipio', '');
+    // prefs.setString('gLocalidad', '');
+    // prefs.setString('gCalle', '');
+    // prefs.setString('gNumero', '');
+    // prefs.setString('gPiso', '');
+    // prefs.setString('gDepartamento', '');
+    // prefs.setString('gFoto', '');
+    // prefs.setBool('login', false);
+    // globals.usuario = Usuario("", "", "", "", "", "", "", "", "", "", "", "",
+    //     "", "", "", "", "", "", "", "");
+  }
 }

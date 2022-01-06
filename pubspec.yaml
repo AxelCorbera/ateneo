@@ -34,8 +34,13 @@ dependencies:
   firebase_core: ^1.8.0
   firebase_messaging: ^11.2.4
   flutter_local_notifications: 9.0.2
-  cloud_firestore: ^2.5.4
   http: ^0.13.4
+  font_awesome_flutter: ^9.2.0
+  provider: ^6.0.2
+  google_sign_in: ^5.2.1
+  firebase_auth: ^3.3.4
+  cloud_firestore: ^3.1.5
+  firebase_storage: ^10.2.4
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -65,9 +70,44 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/logos/logovacio.png
+    - assets/logos/juegos/dota2.png
+    - assets/logos/juegos/dota2/herald1.png
+    - assets/logos/juegos/dota2/herald2.png
+    - assets/logos/juegos/dota2/herald3.png
+    - assets/logos/juegos/dota2/herald4.png
+    - assets/logos/juegos/dota2/herald5.png
+    - assets/logos/juegos/dota2/guardian1.png
+    - assets/logos/juegos/dota2/guardian2.png
+    - assets/logos/juegos/dota2/guardian3.png
+    - assets/logos/juegos/dota2/guardian4.png
+    - assets/logos/juegos/dota2/guardian5.png
+    - assets/logos/juegos/dota2/crusader1.png
+    - assets/logos/juegos/dota2/crusader2.png
+    - assets/logos/juegos/dota2/crusader3.png
+    - assets/logos/juegos/dota2/crusader4.png
+    - assets/logos/juegos/dota2/crusader5.png
+    - assets/logos/juegos/dota2/archon1.png
+    - assets/logos/juegos/dota2/archon2.png
+    - assets/logos/juegos/dota2/archon3.png
+    - assets/logos/juegos/dota2/archon4.png
+    - assets/logos/juegos/dota2/archon5.png
+    - assets/logos/juegos/dota2/legend1.png
+    - assets/logos/juegos/dota2/legend2.png
+    - assets/logos/juegos/dota2/legend3.png
+    - assets/logos/juegos/dota2/legend4.png
+    - assets/logos/juegos/dota2/legend5.png
+    - assets/logos/juegos/dota2/ancient1.png
+    - assets/logos/juegos/dota2/ancient2.png
+    - assets/logos/juegos/dota2/ancient3.png
+    - assets/logos/juegos/dota2/ancient4.png
+    - assets/logos/juegos/dota2/ancient5.png
+    - assets/logos/juegos/dota2/divine1.png
+    - assets/logos/juegos/dota2/divine2.png
+    - assets/logos/juegos/dota2/divine3.png
+    - assets/logos/juegos/dota2/divine4.png
+    - assets/logos/juegos/dota2/divine5.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
